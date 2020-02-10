@@ -1,0 +1,83 @@
+# StaffSySK
+options:
+    perm: staff
+    noPerm: &cHmm...&8 Seems like you don't have permission to use this command.
+    pre: &c[] StaffSySK [] &8<><><>&7
+    stoppers: HighLevelStaffMembersUUIDHere, HighLevelStaffMembersUUIDHereAgain
+on script load:
+    if {firstLoad} isn't set:
+        set {firstLoad} to false
+        send "StaffSySK" to console
+        log "[] First Load! []"
+        broadcast "{@pre} First load! Please, in the config (main file), add your name to the Stop List if you would like full permissions!"
+        add "Console" to {stopList::*}
+        add "{@stoppers}" to {stopList::*}
+    else:
+        if {firstLoad} is false:
+            log "StaffSySK"
+            broadcast "{@pre} [] StaffSySK reloaded []"
+            add "{@stoppers}" to {stopList::*}
+
+command /staff:
+    permission message: sys.{@perm}
+    permission message: {@noPerm}
+    trigger:
+        open virtual chest with size 1 to player
+        wait 1 tick
+        format gui slot 0 of player with red dye named "&cMute/Unmute Chat" with lore "&cToggles chat" to run:
+            if {chatMute} is false:
+                set {chatMute} to true
+                send "&cMuted chat."
+                broadcast "{@pre} Chat muted! Only high level staff can bypass this!"
+            else if {chatMute} is true:
+                set {chatMute} to false
+                send "&eUnmuted chat!"
+                broadcast "{@pre} &eChat unmuted!"
+        wait 1 tick
+        format gui slot 1 of player with red stained glass pane
+        wait 1 tick
+        format gui slot 2 of player with blue dye named "&cAllow/deny Building" with lore "&cToggles building - Includes &4Breaking + Placing&c!" to run:
+            if {buildDeny} is false:
+                set {buildDeny} to true
+                send "&cDisabled building."
+                broadcast "{@pre} Placing + Breaking disabled! - Only OPs can bypass this!"
+            if {buildDeny} is true:
+                send "&eRe-enabled building!"
+                broadcast "{@pre}&e Chat unmuted!"
+                set {buildDeny} to false
+        wait 1 tick
+        format gui slot 3 of player with red stained glass pane
+        wait 1 tick
+        format gui slot 4 of player with black dye named "&4Stop server" with lore "&4Requires OP, and to be in the list of players who have permission to stop the server. &l(THIS WILL /SAVE-ALL THE SERVER.)" to run:
+            loop {stopList::*}:
+                if loop-value contains player's uuid:
+                    if player is op:
+                        broadcast "{@pre} Server is about to be stopped! - Server will be saved."
+                        make console execute command "/save"
+                        log "%player% (%player's uuid%) is stopping the server."
+                        wait 20 seconds
+                        log "%player% (%player's uuid%) has stopped the server."
+                        make console execute command "/stop"
+                    else:
+                        kick player due to "&4You cannot stop the server!"
+                        log "%player% (%player's uuid%) tried to stop the server!"
+                else:
+                    kick player due to "&4You cannot stop the server!"
+                    log "%player% (%player's uuid%) tried to stop the server!"
+on chat:
+    if {chatMute} is true:
+        if player doesn't have permission "sys.bypass":
+            cancel event
+            send "&cChat is muted!"
+
+on place:
+    if {buildDeny} is true:
+        if player isn't op:
+            cancel event
+            send "&cPlacing is disabled right now!"
+    
+on break:
+    if {buildDeny} is true:
+        if player isn't op:
+            cancel event
+            send "&cBreaking is disabled right now!"
