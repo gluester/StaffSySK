@@ -1,5 +1,5 @@
 ![Logo](https://github.com/gluester/StaffSySK/blob/master/staffsyssklogo.png)
-# StaffSySK
+# StaffSySK - WARNING | this skript is broken, don't use unless you're up to fixing some issues. I may get around to fixing it soon.
 A Skripted staff member ... skript!
 ### (!) Github.com/SkriptLang/Skript (!)
 # Features
